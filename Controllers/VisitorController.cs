@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyApplication.Models;
+using MyApplication.Models.ModelDbContext;
+using MyApplication.validation;
+using MyApplication.VeiwModel;
 
 namespace MyApplication.Controllers
 {
@@ -15,123 +19,120 @@ namespace MyApplication.Controllers
     public class VisitorController : ControllerBase
     {
         private readonly HotelMSDBContext _context;
-
         private readonly IMapper _mapper;
-
 
         public VisitorController(HotelMSDBContext context, IMapper mapper)
         {
-            _mapper = mapper;
             _context = context;
+            _mapper = mapper;
         }
 
-        // GET: api/CashAdvances
+        // GET: api/Employees
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CashAdvance>>> GetDbCashAdvance()
+        [Route("allVisitor")]
+        public async Task<ActionResult<IEnumerable<Visitor>>> GetDbVisitor()
         {
-            var collectorlist = await _context.DbCashAdvance.OrderByDescending(x=> x.requestDate).Where(x=> x.requestStatus.Contains("Pending")).ToListAsync();
-            return Ok(_mapper.Map<IEnumerable<CashAdvanceViewModel>>(collectorlist));
+            var VisitorList = await _context.DbVisitor.ToListAsync();
+            return Ok(_mapper.Map<IEnumerable<VisitorViewModel>>(VisitorList));
         }
-        
-        // GET: api/CashAdvances/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CashAdvance>> GetCashAdvance(int id)
+
+        // GET: api/Employees/5
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<ActionResult<Visitor>> Getvisitor(int id)
         {
+            var employee = await _context.DbVisitor.FindAsync(id);
 
-            var cashCollector = await _context.DbCashAdvance.FindAsync(id);
-
-            if (cashCollector == null)
+            if (employee == null)
             {
                 return NotFound();
             }
-            //await _context.DbCashAdvance.Where(x => x.department == cashCollector.department).FirstOrDefault();
 
-            var HOd = _context.DbDepartment.Where(x => x.Name == cashCollector.department).FirstAsync();
-            cashCollector.approvedBY = HOd.ToString();
-            //  var cashCollector = await _context.DbCashAdvance.FindAsync(id);
-            cashCollector.approvedDate = DateTime.UtcNow.ToString();
-            cashCollector.requestStatus = "Approved";
-            _context.Entry(cashCollector).State = EntityState.Modified;
-            return Ok(_mapper.Map<CashAdvanceViewModel>(cashCollector));
+            return Ok(_mapper.Map<VisitorViewModel>(employee));
         }
 
-      
-
-        // PUT: api/CashAdvances/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCashAdvance(int id )
+        // PUT: api/Employees/5
+        //Edit password
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<IActionResult> EditVisitor(int id, [FromBody] VisitorViewModel model)
         {
-
-            
-
-                var cashCollector = await _context.DbCashAdvance.FindAsync(id);
-
-            cashCollector.approvedDate = DateTime.UtcNow.ToString();
-            cashCollector.requestStatus = "Approved";
-            _context.Entry(cashCollector).State = EntityState.Modified;
-
-            try
+            // var staff = _mapper.Map<Visitor>(model);
+            var staff = _context.DbVisitor.FirstOrDefault(x => x.Id == id);
+            if (staff == null)
             {
-                await _context.SaveChangesAsync();
+                return BadRequest("Staff with the Id not found");
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CashAdvanceExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            staff.Password = model.Password;
+            _context.Entry(staff).State = EntityState.Modified;
 
-            return NoContent();
+
+            await _context.SaveChangesAsync();
+            return Ok(staff);
+
         }
 
-        // POST: api/CashAdvances
+
+        // POST: api/Employees
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<CashAdvance>> PostCashAdvance([FromBody]CashAdvanceViewModel model)
+        [HttpPost("{creatVisitor}")]
+        public async Task<ActionResult<Visitor>> AddVisitor([FromBody] VisitorViewModel model)
         {
-            var cashrequest = _mapper.Map<CashAdvance>(model);
+            var check = _context.DbVisitor.FirstOrDefault(x => x.Email == model.Email);
+            if (check != null)
+            {
+                return BadRequest("emaill is already in use");
+            }
 
-          
-            cashrequest.requestDate = DateTime.UtcNow.ToString();
-            cashrequest.requestStatus = "Pending";
+            var validPhone = Regex.IsMatch(model.Phone, Validation.IsPhoneNumber) || Regex.IsMatch(model.Phone, Validation.IsPhoneNumberAlt);
+            if (validPhone != true)
+            {
 
-            _context.DbCashAdvance.Add(cashrequest);
+                return BadRequest("input a valid Phone number");
+            }
+
+            var validEmail = Regex.IsMatch(model.Email, Validation.IsEmail);
+            if (validEmail != true)
+            {
+
+                return BadRequest("input a valid Email");
+            }
+
+
+            var visitor = _mapper.Map<Visitor>(model);
+            _context.DbVisitor.Add(visitor);
 
             int count = await _context.SaveChangesAsync();
             if (count < 1)
             {
-
-                return BadRequest("not saved");
+                return BadRequest();
             }
 
-            return Ok(cashrequest);
+            return Ok(visitor);
+
+
+            //return CreatedAtAction("GetEmployee", new { id = employee.Id }, employee);
         }
 
-        // DELETE: api/CashAdvances/5
+        // DELETE: api/Employees/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCashAdvance(int id)
+        public async Task<IActionResult> DeleteVisitor(int id)
         {
-            var cashAdvance = await _context.DbCashAdvance.FindAsync(id);
-            if (cashAdvance == null)
+            var visitor = await _context.DbVisitor.FindAsync(id);
+            if (visitor == null)
             {
                 return NotFound();
             }
 
-            _context.DbCashAdvance.Remove(cashAdvance);
+            _context.DbVisitor.Remove(visitor);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool CashAdvanceExists(int id)
-        {
-            return _context.DbCashAdvance.Any(e => e.Id == id);
-        }
+        //public bool EmployeeExists(int id)
+        //{
+        //    return _context.DbVisitor.Any(e => e.Id == id);
+        //}
     }
 }

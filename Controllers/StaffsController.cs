@@ -52,7 +52,6 @@ namespace MyApplication.Controllers
         // PUT: api/Employees/5
         //Edit password
         [HttpPut]
-
         [Route("{id}")]
         public async Task<IActionResult> PutEmployee(int id, [FromBody] staffUpdateViewModel model)
         {
@@ -74,7 +73,7 @@ namespace MyApplication.Controllers
 
         // POST: api/Employees
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("{addEmployee}")]
+        [HttpPost("{addStaff}")]
         public async Task<ActionResult<Staffs>> AddStaff([FromBody]staffsViewModel model)
         {
             var check = _context.DbStaff.FirstOrDefault(x => x.Email == model.Email);

@@ -1,4 +1,6 @@
 ﻿using MyApplication.Models;
+using MyApplication.Models.ModelDbContext;
+using MyApplication.VeiwModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +22,8 @@ namespace MyApplication.Utility
             CreateMap<Department, DepartmentViewModel>()
                 .ReverseMap();
             CreateMap<CashAdvance, CashAdvanceViewModel>()
+                .ReverseMap();
+            CreateMap<Visitor, VisitorViewModel>()
                 .ReverseMap();
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MyApplication.Models.ModelDbContext;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,6 @@ namespace MyApplication.Models
         public DbSet<CashAdvance> DbCashAdvance { get; set; }
         public DbSet<Department> DbDepartment { get; set; }
         public DbSet<Staffs> DbStaff { get; set; }
+        public DbSet<Visitor> DbVisitor { get; set; }
     }
 }
