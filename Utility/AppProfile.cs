@@ -25,6 +25,8 @@ namespace MyApplication.Utility
                 .ReverseMap();
             CreateMap<Visitor, VisitorViewModel>()
                 .ReverseMap();
+            CreateMap<Order, OrderViewModel>()
+                .ReverseMap();
         }
     }
 }

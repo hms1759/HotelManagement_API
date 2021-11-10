@@ -17,5 +17,6 @@ namespace MyApplication.Models
         public DbSet<Department> DbDepartment { get; set; }
         public DbSet<Staffs> DbStaff { get; set; }
         public DbSet<Visitor> DbVisitor { get; set; }
+        public DbSet<Order> DbOrder { get; set; }
     }
 }
