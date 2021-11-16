@@ -1,0 +1,4 @@
+# HotelManagement_API
+HotelManagement API with MC doing the Mobile and me using react Ui
+this project is the api that responsible for registeration of user and staff, 
+visitor can make booking and the reservation, while staff can approved it.
