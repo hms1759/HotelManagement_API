@@ -19,11 +19,13 @@ namespace MyApplication.Utility
                 .ReverseMap();
             CreateMap<Staffs, staffUpdateViewModel>()
                 .ReverseMap();
-            CreateMap<Department, DepartmentViewModel>()
-                .ReverseMap();
+           // CreateMap<staffs, DepartmentViewModel>()
+          //      .ReverseMap();
             CreateMap<CashAdvance, CashAdvanceViewModel>()
                 .ReverseMap();
             CreateMap<Visitor, VisitorViewModel>()
+                .ReverseMap();
+            CreateMap<Order, OrderViewModel>()
                 .ReverseMap();
         }
     }
